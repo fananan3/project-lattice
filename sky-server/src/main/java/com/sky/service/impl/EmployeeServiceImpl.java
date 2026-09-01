@@ -75,12 +75,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setStatus(StatusConstant.ENABLE);
         String password = DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes());
         employee.setPassword(password);
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
+//        employee.setCreateTime(LocalDateTime.now());
+//        employee.setUpdateTime(LocalDateTime.now());
         // TODO 要设置成登陆用户的ID
         Long currentId = BaseContext.getCurrentId();
-        employee.setUpdateUser(currentId);
-        employee.setCreateUser(currentId);
+//        employee.setUpdateUser(currentId);
+//        employee.setCreateUser(currentId);
 
         employeeMapper.insert(employee);
 

@@ -41,10 +41,10 @@ public class AutoFillAspect {
         //获取到被拦截方法的操作类型
         OperationType operationType = autoFill.value();
 
-        Object[] entity = joinPoint.getArgs();
-        if(entity == null || entity.length == 0)return;
+        Object[] args = joinPoint.getArgs();
+        if(args == null || args.length == 0)return;
         //获取该方法传递的实体对象
-        Object arg = entity[0];
+        Object entity = args[0];
         LocalDateTime now = LocalDateTime.now();
         Long currentId = BaseContext.getCurrentId();
 
@@ -55,10 +55,10 @@ public class AutoFillAspect {
                 Method setUpdateTime = entity.getClass().getDeclaredMethod("setUpdateTime", LocalDateTime.class);
                 Method setUpdateUser = entity.getClass().getDeclaredMethod("setUpdateUser", Long.class);
 
-                setCreateTime.invoke(now);
-                setCreateUser.invoke(currentId);
-                setUpdateTime.invoke(now);
-                setUpdateUser.invoke(currentId);
+                setCreateTime.invoke(entity,now);
+                setCreateUser.invoke(entity,currentId);
+                setUpdateTime.invoke(entity,now);
+                setUpdateUser.invoke(entity,currentId);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -68,8 +68,8 @@ public class AutoFillAspect {
             try {
                 Method setUpdateTime = entity.getClass().getDeclaredMethod("setUpdateTime", LocalDateTime.class);
                 Method setUpdateUser = entity.getClass().getDeclaredMethod("setUpdateUser", Long.class);
-                setUpdateTime.invoke(now);
-                setUpdateUser.invoke(currentId);
+                setUpdateTime.invoke(entity,now);
+                setUpdateUser.invoke(entity,currentId);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

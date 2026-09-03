@@ -6,8 +6,15 @@ sky:
     database: sky_take_out
     username: root
     password:
+  redis:
+    host: 172.16.212.131
+    port: 6379
+    database: 0
   alioss:
     endpoint: oss-cn-beijing.aliyuncs.com
     access-key-secret: TMMEodsshsdwUg0cM4cpsyQHb2Gsrj
     access-key-id: LTAI5t5dZggrxag3W4VJfjN9
     bucket-name: fananan
+  wechat:
+    appid: wxef729594f4e2ce4d
+    secret: 151175c287278def87995f1c62a2d2fb

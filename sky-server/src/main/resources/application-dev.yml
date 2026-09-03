@@ -9,7 +9,7 @@ sky:
   redis:
     host: 172.16.212.131
     port: 6379
-    database: 0
+    database: 1
   alioss:
     endpoint: oss-cn-beijing.aliyuncs.com
     access-key-secret: TMMEodsshsdwUg0cM4cpsyQHb2Gsrj

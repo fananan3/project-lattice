@@ -25,3 +25,4 @@ sky:
     we-chat-pay-cert-file-path: D:\cert\apiclient_cert.pem
     refund-notify-url: https://6a89dd6c.r5.cpolar.top/wechat/pay/refund/notify
     notify-url: https://6a89dd6c.r5.cpolar.top/wechat/pay/notify
+    mock-pay: true

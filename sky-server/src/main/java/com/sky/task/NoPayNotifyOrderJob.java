@@ -1,0 +1,76 @@
+package com.sky.task;
+
+import com.alipay.api.AlipayClient;
+import com.alipay.api.domain.AlipayTradeQueryModel;
+import com.alipay.api.request.AlipayTradeQueryRequest;
+import com.alipay.api.response.AlipayTradeQueryResponse;
+import com.sky.service.OrderService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.List;
+
+/**
+ * @Description 检测未接收到或未正确处理的支付宝支付回调通知（对齐 s-pay-mall NoPayNotifyOrderJob）
+ * @Author fanyiheng
+ * @note 兜底策略：支付宝回调丢失/未处理时，本任务主动查询支付宝交易状态补偿置为支付成功；
+ *       交易不存在（用户未付款）跳过，交给超时关单任务处理。
+ */
+@Slf4j
+@Component
+public class NoPayNotifyOrderJob {
+
+    @Resource
+    private OrderService orderService;
+    @Resource
+    private AlipayClient alipayClient;
+
+    @Scheduled(cron = "0 */10 * * * ?")
+    public void exec() {
+        try {
+            log.info("任务；检测未接收到或未正确处理的支付宝支付回调通知");
+            List<String> orderIds = orderService.queryNoPayNotifyOrder();
+            if (null == orderIds || orderIds.isEmpty()) {
+                return;
+            }
+
+            for (String orderId : orderIds) {
+                AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
+                AlipayTradeQueryModel bizModel = new AlipayTradeQueryModel();
+                bizModel.setOutTradeNo(orderId);
+                request.setBizModel(bizModel);
+
+                AlipayTradeQueryResponse response = alipayClient.execute(request);
+                if (response == null) {
+                    log.error("订单 {} 查询支付宝返回 null，可能网络或配置异常", orderId);
+                    continue;
+                }
+                String code = response.getCode();
+                if (!"10000".equals(code)) {
+                    // 交易不存在 = 用户压根没付款（订单只是创建了支付单），属于正常情况：
+                    // 后续交给超时关单任务处理即可，这里不要当异常刷 error 日志
+                    if ("ACQ.TRADE_NOT_EXIST".equals(response.getSubCode())) {
+                        log.info("订单 {} 支付宝无交易记录（用户未付款），跳过", orderId);
+                        continue;
+                    }
+                    log.warn("订单 {} 查询失败：code={}, subCode={}, subMsg={}", orderId, code, response.getSubCode(), response.getSubMsg());
+                    // 其他失败：可能是网络/配置问题，下个周期重试
+                    continue;
+                }
+                String tradeStatus = response.getTradeStatus();
+
+                if ("TRADE_SUCCESS".equals(tradeStatus) || "TRADE_FINISHED".equals(tradeStatus)) {
+                    orderService.paySuccess(orderId, response.getSendPayDate());
+                    log.info("订单 {} 补偿成功，交易状态：{}", orderId, tradeStatus);
+                } else {
+                    log.info("订单 {} 交易状态：{}，暂不处理", orderId, tradeStatus);
+                }
+            }
+        } catch (Exception e) {
+            log.error("检测未接收到或未正确处理的支付宝支付回调通知失败", e);
+        }
+    }
+
+}

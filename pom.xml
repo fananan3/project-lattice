@@ -19,7 +19,7 @@
     </modules>
     <properties>
         <mybatis.spring>2.2.0</mybatis.spring>
-        <lombok>1.18.20</lombok>
+        <lombok>1.18.34</lombok>
         <fastjson>1.2.76</fastjson>
         <commons.lang>2.6</commons.lang>
         <druid>1.2.1</druid>
@@ -30,9 +30,39 @@
         <jjwt>0.9.1</jjwt>
         <jaxb-api>2.3.1</jaxb-api>
         <poi>3.16</poi>
+        <!-- 显式钉住编译目标为 Java 8：
+             Maven 3.9+ 会自动注入 maven.compiler.source/target/release=运行JDK版本(21)，
+             导致 class major=65，spring-boot-maven-plugin 2.7.3 repackage 报
+             "Unsupported class file major version 65"；显式声明后不再注入。 -->
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <!-- 注意：JDK21 的 javac 只接受 release 参数值 8（不接受 1.8 写法） -->
+        <maven.compiler.release>8</maven.compiler.release>
     </properties>
     <dependencyManagement>
         <dependencies>
+            <!-- Spring Cloud / Spring Cloud Alibaba（与参考项目 mall-market-yh 一致） -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>2021.0.8</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>2021.0.5.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- 支付宝沙箱支付：https://opendocs.alipay.com/common/02kkv7 -->
+            <dependency>
+                <groupId>com.alipay.sdk</groupId>
+                <artifactId>alipay-sdk-java</artifactId>
+                <version>4.38.157.ALL</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.mybatis.spring.boot</groupId>
                 <artifactId>mybatis-spring-boot-starter</artifactId>

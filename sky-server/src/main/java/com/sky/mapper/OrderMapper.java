@@ -6,6 +6,7 @@ import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -91,4 +92,44 @@ public interface OrderMapper {
      * @return
      */
     List<GoodsSalesDTO> goodsSales(LocalDateTime begin, LocalDateTime end);
+
+    // ==================== 拼团营销 + 任务补偿（对齐 s-pay-mall pay_order 状态机） ====================
+
+    /**
+     * 查询未收到支付回调的支付宝订单（补偿：主动查询支付宝交易状态）
+     * 条件：支付宝支付、未支付、待付款、下单超过1分钟
+     */
+    @Select("select number from orders where pay_method = 2 and pay_status = 0 and status = 1 " +
+            "and order_time <= DATE_SUB(NOW(), INTERVAL 1 MINUTE) order by id asc limit 10")
+    List<String> queryNoPayNotifyOrder();
+
+    /**
+     * 查询待结算（WAIT_SETTLEMENT）的拼团已支付订单（结算补偿任务）
+     */
+    @Select("select * from orders where market_status = 1 order by id asc limit 100")
+    List<Orders> queryWaitSettlementOrderList();
+
+    /**
+     * 查询待退款（WAIT_REFUND）的订单（退款补偿任务）
+     */
+    @Select("select * from orders where market_status = 3 order by id asc limit 100")
+    List<Orders> queryWaitRefundOrderList();
+
+    /**
+     * 标记拼团订单为待结算（结算失败，交给补偿任务重试）
+     */
+    @Update("update orders set market_status = 1 where number = #{orderNumber}")
+    void changeOrderWaitSettlement(String orderNumber);
+
+    /**
+     * 标记拼团订单为待退款（自动退款失败，交给退款补偿任务重试）
+     */
+    @Update("update orders set market_status = 3 where user_id = #{userId} and number = #{orderNumber}")
+    void changeOrderWaitRefund(Long userId, String orderNumber);
+
+    /**
+     * 拼团成团回调：批量标记订单结算完成（MARKET）
+     * 仅对已支付订单生效，避免把未支付单误标记
+     */
+    void changeOrderMarketSettlement(List<String> orderNumbers);
 }

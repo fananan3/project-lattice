@@ -35,6 +35,22 @@ public class Orders implements Serializable {
     public static final Integer PAID = 1;
     public static final Integer REFUND = 2;
 
+    /**
+     * 营销类型 0无营销 1拼团营销（对齐 s-pay-mall MarketTypeVO）
+     */
+    public static final Integer NO_MARKET = 0;
+    public static final Integer GROUP_BUY = 1;
+
+    /**
+     * 拼团结算状态 0未参与结算 1待结算(WAIT_SETTLEMENT) 2结算完成(SETTLED) 3待退款(WAIT_REFUND) 4已退款(REFUNDED)
+     * 对齐 s-pay-mall pay_order.status 的 PAY_SUCCESS/WAIT_SETTLEMENT/MARKET/WAIT_REFUND 生命周期
+     */
+    public static final Integer MARKET_STATUS_NONE = 0;
+    public static final Integer MARKET_STATUS_WAIT_SETTLEMENT = 1;
+    public static final Integer MARKET_STATUS_SETTLED = 2;
+    public static final Integer MARKET_STATUS_WAIT_REFUND = 3;
+    public static final Integer MARKET_STATUS_REFUNDED = 4;
+
     private static final long serialVersionUID = 1L;
 
     private Long id;
@@ -107,4 +123,28 @@ public class Orders implements Serializable {
 
     //餐具数量状态  1按餐量提供  0选择具体数量
     private Integer tablewareStatus;
+
+    //营销类型 0无营销 1拼团营销
+    private Integer marketType;
+
+    //拼团队伍ID
+    private String teamId;
+
+    //拼团活动ID
+    private Long activityId;
+
+    //拼团商品ID
+    private String goodsId;
+
+    //拼团优惠金额
+    private BigDecimal deductionAmount;
+
+    //实付金额（拼团价/原价），支付与退款以此为准
+    private BigDecimal payAmount;
+
+    //锁单失败降级原价标记 0否 1是
+    private Integer marketFallback;
+
+    //拼团结算状态 0未参与 1待结算 2结算完成 3待退款 4已退款
+    private Integer marketStatus;
 }

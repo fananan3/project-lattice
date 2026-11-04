@@ -1,11 +1,22 @@
 server:
-  port: 8080
+  port: 8083
 
 spring:
+  application:
+    name: sky-take-out                    # Nacos 注册名（网关 lb://sky-take-out 使用）
   profiles:
     active: dev
   main:
     allow-circular-references: true
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+      config:
+        server-addr: 127.0.0.1:8848
+        file-extension: yml
+  config:
+    import: optional:nacos:sky-take-out.yml
   datasource:
     druid:
       driver-class-name: ${sky.datasource.driver-class-name}
@@ -62,3 +73,15 @@ sky:
     address: 北京市海淀区上地十街10号
   baidu:
     ak: raLLyiyMCq07zRPAzM7bsZhoFl1qXnXf
+  group-buy-market:
+    source: s01                          # 拼团渠道值（与 gbm 约定，参考项目同值）
+    channel: c01                         # 拼团来源值
+    notify-url: http://117.72.123.254:6000/notify/groupBuySuccess   # 拼团成团回调（参考项目公网地址）
+
+alipay:
+  app-id: ${sky.alipay.app-id}
+  merchant-private-key: ${sky.alipay.merchant-private-key}
+  alipay-public-key: ${sky.alipay.alipay-public-key}
+  notify-url: ${sky.alipay.notify-url}
+  return-url: ${sky.alipay.return-url}
+  gateway-url: ${sky.alipay.gateway-url}

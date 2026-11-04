@@ -27,8 +27,47 @@ public interface OrderService {
     /**
      * 支付成功，修改订单状态
      * @param outTradeNo
+     * @param payTime 支付时间
      */
-    void paySuccess(String outTradeNo);
+    void paySuccess(String outTradeNo, java.util.Date payTime);
+
+    /**
+     * 拼团结算（兜底：业务被拒自动退款关单，网络异常标记待结算重试）
+     * @param ordersDB 订单
+     * @param payTime 支付时间
+     */
+    void settleMarketOrder(com.sky.entity.Orders ordersDB, java.util.Date payTime);
+
+    /**
+     * 拼团成团回调：批量标记订单结算完成
+     * @param outTradeNoList 成团订单号列表
+     */
+    void changeOrderMarketSettlement(java.util.List<String> outTradeNoList);
+
+    /**
+     * 查询未收到支付回调的支付宝订单（NoPayNotifyOrderJob 补偿）
+     */
+    java.util.List<String> queryNoPayNotifyOrder();
+
+    /**
+     * 查询待结算订单（SettlementRetryJob 补偿）
+     */
+    java.util.List<com.sky.entity.Orders> queryWaitSettlementOrderList();
+
+    /**
+     * 查询待退款订单（RefundRetryJob 补偿）
+     */
+    java.util.List<com.sky.entity.Orders> queryWaitRefundOrderList();
+
+    /**
+     * 结算补偿重试：用原始支付时间重跑拼团结算
+     */
+    void retryMarketSettlement(com.sky.entity.Orders order);
+
+    /**
+     * 退款补偿重试：重试支付渠道退款直至成功
+     */
+    void retryRefund(String outTradeNo);
 
     /**
      * 用户端订单分页查询

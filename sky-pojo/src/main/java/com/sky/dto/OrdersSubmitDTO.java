@@ -28,4 +28,12 @@ public class OrdersSubmitDTO implements Serializable {
     private Integer packAmount;
     //总金额
     private BigDecimal amount;
+    //营销类型 0无营销 1拼团营销
+    private Integer marketType;
+    //拼团活动ID
+    private Long activityId;
+    //拼团队伍ID（可为空，为空则拼团创建新组队）
+    private String teamId;
+    //拼团商品ID（外卖整单虚拟商品，如 SKY_ORDER）
+    private String goodsId;
 }

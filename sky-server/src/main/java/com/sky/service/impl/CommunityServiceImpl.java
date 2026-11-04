@@ -123,6 +123,25 @@ public class CommunityServiceImpl implements CommunityService {
         return product;
     }
 
+    @Override
+    public StoreProduct productDetail(Long productId) {
+        StoreProduct product = storeProductMapper.getById(productId);
+        if (product == null || product.getStatus() == null || product.getStatus() != 1) {
+            throw new OrderBusinessException("商品不存在或已下架");
+        }
+        return product;
+    }
+
+    @Override
+    public List<StoreProduct> searchProduct(String keyword, Long userId) {
+        List<Community> myCommunities = communityMapper.listByUserId(userId);
+        if (myCommunities == null || myCommunities.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+        List<Long> communityIds = myCommunities.stream().map(Community::getId).collect(Collectors.toList());
+        return storeProductMapper.search(keyword, communityIds);
+    }
+
     private String generateInviteCode() {
         return RandomStringUtils.randomAlphanumeric(8).toUpperCase();
     }

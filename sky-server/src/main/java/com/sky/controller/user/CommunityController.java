@@ -71,4 +71,18 @@ public class CommunityController {
     public Result<StoreProduct> publishProduct(@RequestBody StoreProductPublishDTO dto) {
         return Result.success(communityService.publishProduct(dto, BaseContext.getCurrentId()));
     }
+
+    /** 商品详情 */
+    @GetMapping("/product/detail")
+    @ApiOperation("商品详情")
+    public Result<StoreProduct> productDetail(@RequestParam Long id) {
+        return Result.success(communityService.productDetail(id));
+    }
+
+    /** 商品搜索（限定我加入的社群） */
+    @GetMapping("/product/search")
+    @ApiOperation("商品搜索")
+    public Result<List<StoreProduct>> search(@RequestParam String keyword) {
+        return Result.success(communityService.searchProduct(keyword, BaseContext.getCurrentId()));
+    }
 }

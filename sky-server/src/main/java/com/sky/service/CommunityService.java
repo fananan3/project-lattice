@@ -42,4 +42,14 @@ public interface CommunityService {
      * 团长发布商品到社群（需为团长）
      */
     StoreProduct publishProduct(StoreProductPublishDTO dto, Long userId);
+
+    /**
+     * 商品详情
+     */
+    StoreProduct productDetail(Long productId);
+
+    /**
+     * 商品搜索（限定我加入的社群）
+     */
+    List<StoreProduct> searchProduct(String keyword, Long userId);
 }

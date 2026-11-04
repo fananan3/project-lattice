@@ -26,4 +26,15 @@ public interface StoreProductMapper {
 
     @Select("select * from store_product where community_id = #{communityId} and status = 1 order by create_time desc")
     List<StoreProduct> listByCommunityId(Long communityId);
+
+    @Select("select * from store_product where id = #{id}")
+    StoreProduct getById(Long id);
+
+    /**
+     * 商品搜索：名称模糊匹配 + 限定我加入的社群
+     */
+    @Select("<script>select * from store_product where status = 1 and name like concat('%', #{keyword}, '%') " +
+            "and community_id in <foreach collection='communityIds' item='cid' open='(' separator=',' close=')'>#{cid}</foreach> " +
+            "order by create_time desc</script>")
+    List<StoreProduct> search(String keyword, List<Long> communityIds);
 }

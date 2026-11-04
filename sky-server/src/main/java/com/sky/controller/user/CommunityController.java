@@ -2,6 +2,7 @@ package com.sky.controller.user;
 
 import com.sky.context.BaseContext;
 import com.sky.dto.CommunityCreateDTO;
+import com.sky.dto.StoreProductPublishDTO;
 import com.sky.entity.Community;
 import com.sky.entity.CommunityMember;
 import com.sky.entity.StoreProduct;
@@ -62,5 +63,12 @@ public class CommunityController {
     @ApiOperation("社群成员列表")
     public Result<List<CommunityMember>> members(@RequestParam Long communityId) {
         return Result.success(communityService.members(communityId, BaseContext.getCurrentId()));
+    }
+
+    /** 团长发布商品到社群 */
+    @PostMapping("/product")
+    @ApiOperation("团长发布商品")
+    public Result<StoreProduct> publishProduct(@RequestBody StoreProductPublishDTO dto) {
+        return Result.success(communityService.publishProduct(dto, BaseContext.getCurrentId()));
     }
 }

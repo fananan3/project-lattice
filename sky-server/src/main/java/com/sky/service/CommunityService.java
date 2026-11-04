@@ -1,6 +1,7 @@
 package com.sky.service;
 
 import com.sky.dto.CommunityCreateDTO;
+import com.sky.dto.StoreProductPublishDTO;
 import com.sky.entity.Community;
 import com.sky.entity.CommunityMember;
 import com.sky.entity.StoreProduct;
@@ -36,4 +37,9 @@ public interface CommunityService {
      * 社群成员列表（需为成员）
      */
     List<CommunityMember> members(Long communityId, Long userId);
+
+    /**
+     * 团长发布商品到社群（需为团长）
+     */
+    StoreProduct publishProduct(StoreProductPublishDTO dto, Long userId);
 }

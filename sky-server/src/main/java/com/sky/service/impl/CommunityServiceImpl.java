@@ -1,6 +1,7 @@
 package com.sky.service.impl;
 
 import com.sky.dto.CommunityCreateDTO;
+import com.sky.dto.StoreProductPublishDTO;
 import com.sky.entity.Community;
 import com.sky.entity.CommunityMember;
 import com.sky.entity.StoreProduct;
@@ -98,6 +99,28 @@ public class CommunityServiceImpl implements CommunityService {
             throw new OrderBusinessException("不是该社群成员");
         }
         return communityMemberMapper.listByCommunityId(communityId);
+    }
+
+    @Override
+    public StoreProduct publishProduct(StoreProductPublishDTO dto, Long userId) {
+        // 权限：仅团长可发布商品
+        CommunityMember member = communityMemberMapper.getByCommunityAndUser(dto.getCommunityId(), userId);
+        if (member == null || member.getRole() == null || member.getRole() != 1) {
+            throw new OrderBusinessException("只有该社群团长才能发布商品");
+        }
+        StoreProduct product = StoreProduct.builder()
+                .storeId(0L) // 阶段一：店铺暂未拆开，直接挂社群
+                .communityId(dto.getCommunityId())
+                .name(dto.getName())
+                .image(dto.getImage())
+                .price(dto.getPrice())
+                .stock(dto.getStock() == null ? 0 : dto.getStock())
+                .description(dto.getDescription())
+                .status(1)
+                .build();
+        storeProductMapper.insert(product);
+        log.info("团长发布商品 productId:{} communityId:{} userId:{}", product.getId(), dto.getCommunityId(), userId);
+        return product;
     }
 
     private String generateInviteCode() {

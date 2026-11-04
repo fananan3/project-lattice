@@ -12,25 +12,28 @@ sky:
     database: 1
   alioss:
     endpoint: oss-cn-beijing.aliyuncs.com
-    access-key-secret: TMMEodsshsdwUg0cM4cpsyQHb2Gsrj
-    access-key-id: LTAI5t5dZggrxag3W4VJfjN9
+    # 阿里云 OSS 密钥从环境变量注入（勿提交明文）：ALIYUN_OSS_ACCESS_KEY_ID / ALIYUN_OSS_ACCESS_KEY_SECRET
+    access-key-secret: ${ALIYUN_OSS_ACCESS_KEY_SECRET:}
+    access-key-id: ${ALIYUN_OSS_ACCESS_KEY_ID:}
     bucket-name: fananan
   wechat:
     appid: wxef729594f4e2ce4d
-    secret: 151175c287278def87995f1c62a2d2fb
+    # 微信小程序密钥从环境变量注入：WECHAT_APP_SECRET
+    secret: ${WECHAT_APP_SECRET:}
     mchid: 1561414331
     mch-serial-no: 4B3B3DC35414AD50B1B755BAF8DE9CC7CF407606
     private-key-file-path: D:\cert\apiclient_key.pem
-    api-v3-key: CZBK51236435wxpay435434323FFDuv3
+    # 微信支付 APIv3 密钥从环境变量注入：WECHAT_API_V3_KEY
+    api-v3-key: ${WECHAT_API_V3_KEY:}
     we-chat-pay-cert-file-path: D:\cert\apiclient_cert.pem
     refund-notify-url: https://6a89dd6c.r5.cpolar.top/wechat/pay/refund/notify
     notify-url: https://6a89dd6c.r5.cpolar.top/wechat/pay/notify
     mock-pay: true
-  # 支付宝沙箱（配置与参考项目 mall-market-yh 完全一致：沙箱APPID + 商户私钥 + 支付宝公钥 + 公网回调地址）
+  # 支付宝沙箱（沙箱APPID + 支付宝公钥 + 公网回调地址；商户私钥从环境变量注入：ALIPAY_MERCHANT_PRIVATE_KEY）
   alipay:
     enabled: true
     app-id: 9021000168668960
-    merchant-private-key: MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCCmB2VN78zTp9+Kq9rKTH0sOXWJJB2P6kt4COiVFHPSQaB6jXDLmboCoKNX/PNz0qL+qL52p2gp85uK7U22KGl6Wu+jBS2ZnyttL5XHNTtBgdW3+aqSntVUKjH5aNLkc465k5iZkcF7RG2mTPeKEXXZzPlREg3Qyw6FBgWZd6TXEXm38Q/G9l3g9yDYJOnI0eliJ2Oix+Hw5dhFUUE680miuJXIfMCBCFn3cEzACMjSVPRjWcI6f7UArlCiXafHsibLmUwl5q9zfAjtlN1NG1H78qb9wXJXUMInugSrTLL09lwBkvEapQAgto583khidqScFahFVEHHP6XHq+WweWxAgMBAAECggEAB/RsGOLEasOnQ3AmL0jbGiSMW3butcU68OhuQz0Pnqi8FL3HeJQjAI9jVGk72JV/3PbvZnjCkT6nfF59M1IOxqRpQ7oUqOelQI956KSA888iM1CAJG9VA+Vd4o9CWyAOh9fvfl7shJfkNFMwrZ+WYYCP0K9QFs2orAD9Vp/t5tvpv2psx8mlM4cwwLf/LZKjLbruvDafFc1GsivabrVk4mx7ikdu/VejX/99PMSwCqu9BM8J63VsPusZEwSXApWtFx3SJLFZVLhJtWRnzwsZvLQ4THI2SWrQ4F7cXQPbpIEMYlmrz81orgeT0YCmHKeRMtxQNd6wmMhbD/SSzFv2gQKBgQC4h5szf99dkTETpe59UwJd6ZGLGcbqL7JGgDorcLs9Fg38IGjvEgkdz3po3lkrEBbK0lotafp1DWTLFh6U8m3IemhWTJGDJ3fZih5ZbBypu/gacCY3eI/gQLcc1mZV8DqLWqzoa25mR3ZvziQ9FrLo1Sqz66kUPY+afIpG6/3InQKBgQC1LLlEKgvwibJyK2CmpRH8sVANYXDi+ed47gfzc1393Rj9YRz5XuHUa5I1K//tV7NTGBQDFHX4T6MPpBo01nWCpG9GpjyZgbYf+7PcDxAEtq4BL8JEFDHKuIgRRX9A3+pOYOOCjDWbSjfnh71NqHzKFKVf4BMRuhm2rlrF+l1TJQKBgHHm2oj2ZGS4C2gKY2SeSXa4hqsq9Rp26H8WBVHtGtZA987qHnt7UX9CI1f572ZiXv9AyoL/yKZZ5x5of+YGonc9/4tNZgBj61mvJL6juimXKjT/hsd0trKAn8bAHJjtWOXNya8JKTMe519qCfpfOX34noxCabJhsXN1blEKuDMNAoGABtj6452nN98sdG45R/MjO+bDvM27A4koe4SbnlL08XxizmjWPIKejHXIX+Qa1zCiYXiegQNL9iekZRnxt5+Hb3mhjw0Ha1HgvVK5GI8lLthsuTTB5erRevUAh46V4bDU3UOCNdPwzr6+YCzcNcwxcz3Whkokzl23TRVH7wWoc1UCgYB6F2+luVgxFxBpuyfAIRMV65uHmVECKQFA77fMxlksYA1mHAMqpiRHxYTkFTqZRG2A1rnptD/ZMEN45yMvQfF5xJ78XWaslsTSx276f+GP1Gf9+99eBwOOt6jeTIXIt77/1H0MaymWjeaquctHb2ZYlP/oIbRc+jbdEVsN9cnFPA==
+    merchant-private-key: ${ALIPAY_MERCHANT_PRIVATE_KEY:}
     alipay-public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoFcrp3XnS8NL1kHujorflMHNTAu5exx4uQaoPpiWtJiLlHUPsudByRUU8IPOLsQ66otpm2k5mDiBvKmOE6M8YW82VcnxMlHGFRBQjIw3JF7scSkk86jmjwCOXe9FmVj9i0t10mTIDbwJ3FZbYxqpmmmBCLMW40QoKokG7VUZNXYImoEw0hTNw4yDRZAF9U+g35pp3FwCMdUlgnMV1jkRLFWAVLgpDPn4jt5Ec53E3/UTXUPrmVPT294bmrULTamK4TjM0Ezbe9XrvY6yzEemqfzuT5yDWD2s5UMcWFTymssCrSsOYbF8zGOkBvoSlLyUznT5HeWB/dcbsb52g52phwIDAQAB
     notify-url: http://117.72.123.254:6000/notify/alipayPaySuccess
     return-url: https://gaga.plus

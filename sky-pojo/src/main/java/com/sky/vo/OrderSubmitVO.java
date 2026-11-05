@@ -30,4 +30,8 @@ public class OrderSubmitVO implements Serializable {
     private Integer marketType;
     //锁单失败降级原价标记
     private Boolean marketFallback;
+    //订单类型 0快递 1自提
+    private Integer orderType;
+    //自提核销码
+    private String verifyCode;
 }

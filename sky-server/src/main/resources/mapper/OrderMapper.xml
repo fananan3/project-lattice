@@ -3,17 +3,17 @@
 <mapper namespace="com.sky.mapper.OrderMapper">
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        insert into sky_take_out.orders(number, status, user_id, address_book_id, order_time, checkout_time,
+        insert into sky_take_out.orders(number, status, user_id, store_id, address_book_id, order_time, checkout_time,
                                         pay_method, pay_status, amount, remark, phone, address, user_name,
                                         consignee, cancel_reason, rejection_reason, cancel_time, estimated_delivery_time,
                                         delivery_status, delivery_time, pack_amount, tableware_number, tableware_status,
-                                        market_type, team_id, activity_id, goods_id, deduction_amount, pay_amount,
-                                        market_fallback, market_status)
-        VALUES(#{number},#{status},#{userId},#{addressBookId},#{orderTime},#{checkoutTime},#{payMethod}
+                                        market_type, team_id, activity_id, goods_id, order_type, verify_code, verify_status,
+                                        deduction_amount, pay_amount, market_fallback, market_status)
+        VALUES(#{number},#{status},#{userId},#{storeId},#{addressBookId},#{orderTime},#{checkoutTime},#{payMethod}
         ,#{payStatus},#{amount},#{remark},#{phone},#{address},#{userName},#{consignee},#{cancelReason},#{rejectionReason},#{cancelTime},
                #{estimatedDeliveryTime},#{deliveryStatus},#{deliveryTime},#{packAmount},#{tablewareNumber},#{tablewareStatus},
-               #{marketType},#{teamId},#{activityId},#{goodsId},#{deductionAmount},#{payAmount},
-               #{marketFallback},#{marketStatus})
+               #{marketType},#{teamId},#{activityId},#{goodsId},#{orderType},#{verifyCode},#{verifyStatus},
+               #{deductionAmount},#{payAmount},#{marketFallback},#{marketStatus})
     </insert>
 
     <update id="update" parameterType="com.sky.entity.Orders">

@@ -97,10 +97,10 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public OrderSubmitVO submitOrder(OrdersSubmitDTO ordersSubmitDTO) {
-        // 1. 保证用户地址不为空
-        AddressBook addressBook = addressBookMapper.getById(ordersSubmitDTO.getAddressBookId());
-
-        if (addressBook == null) {
+        // 1. 保证用户地址不为空（快递模式必须；自提模式可无地址）
+        boolean isSelfPick = ordersSubmitDTO.getOrderType() != null && ordersSubmitDTO.getOrderType() == 1;
+        AddressBook addressBook = isSelfPick ? null : addressBookMapper.getById(ordersSubmitDTO.getAddressBookId());
+        if (!isSelfPick && addressBook == null) {
             throw new AddressBookBusinessException(MessageConstant.ADDRESS_BOOK_IS_NULL);
         }
         // 2. 保证购物车不为空
@@ -112,7 +112,9 @@ public class OrderServiceImpl implements OrderService {
             throw new AddressBookBusinessException(MessageConstant.SHOPPING_CART_IS_NULL);
         }
 
-        checkOutOfRange(addressBook.getCityName() + addressBook.getDistrictName() + addressBook.getDetail());
+        if (!isSelfPick) {
+            checkOutOfRange(addressBook.getCityName() + addressBook.getDistrictName() + addressBook.getDetail());
+        }
 
         // 3. 生成唯一订单号（毫秒时间戳 + 4位随机数，避免并发重复，拼团 outTradeNo 复用此号）
         String orderNumber = System.currentTimeMillis() + String.format("%04d", new Random().nextInt(10000));
@@ -121,8 +123,8 @@ public class OrderServiceImpl implements OrderService {
         Orders orders = new Orders();
         BeanUtils.copyProperties(ordersSubmitDTO, orders);
         orders.setUserId(userId);
-        orders.setConsignee(addressBook.getConsignee());
-        orders.setPhone(addressBook.getPhone());
+        orders.setConsignee(isSelfPick ? null : addressBook.getConsignee());
+        orders.setPhone(isSelfPick ? null : addressBook.getPhone());
         orders.setOrderTime(LocalDateTime.now());
         orders.setNumber(orderNumber);
         orders.setStatus(Orders.PENDING_PAYMENT);
@@ -130,6 +132,15 @@ public class OrderServiceImpl implements OrderService {
         orders.setMarketType(Orders.NO_MARKET);
         orders.setMarketStatus(Orders.MARKET_STATUS_NONE);
         orders.setMarketFallback(0);
+        // 订单类型 + 自提核销码
+        orders.setOrderType(isSelfPick ? 1 : 0);
+        if (isSelfPick) {
+            orders.setVerifyCode(generateVerifyCode());
+        }
+        // 店铺ID：取购物车首条商品的店铺
+        if (list != null && !list.isEmpty()) {
+            orders.setStoreId(list.get(0).getStoreId());
+        }
         orders.setPayAmount(orders.getAmount());
 
         // 4. 拼团营销锁单（对齐 s-pay-mall ProductPort.lockMarketPayOrder + marketFallback 降级）
@@ -185,6 +196,8 @@ public class OrderServiceImpl implements OrderService {
                 .deductionAmount(orders.getDeductionAmount())
                 .marketType(orders.getMarketType())
                 .marketFallback(orders.getMarketFallback() != null && orders.getMarketFallback() == 1)
+                .orderType(orders.getOrderType())
+                .verifyCode(orders.getVerifyCode())
                 .build();
 
         return vo;
@@ -757,6 +770,18 @@ public class OrderServiceImpl implements OrderService {
         webSocketServer.sendToAllClient(JSON.toJSONString(map));
     }
 
+
+        /**
+     * 生成自提核销码（6位）
+     */
+    private String generateVerifyCode() {
+        String chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 6; i++) {
+            sb.append(chars.charAt(new Random().nextInt(chars.length())));
+        }
+        return sb.toString();
+    }
 
     private List<OrderVO> getOrderVOList(Page<Orders> page) {
         // 需要返回订单菜品信息，自定义OrderVO响应结果

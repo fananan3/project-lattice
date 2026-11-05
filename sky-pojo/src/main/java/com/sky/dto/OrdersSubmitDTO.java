@@ -36,4 +36,6 @@ public class OrdersSubmitDTO implements Serializable {
     private String teamId;
     //拼团商品ID（外卖整单虚拟商品，如 SKY_ORDER）
     private String goodsId;
+    //订单类型 0快递 1自提/到店
+    private Integer orderType;
 }

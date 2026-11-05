@@ -150,4 +150,20 @@ public interface OrderMapper {
     /** 店铺已退款金额（pay_status=2，含已取消） */
     @Select("select ifnull(sum(amount),0) from orders where store_id = #{storeId} and pay_status = 2")
     Double sumRefundByStoreId(Long storeId);
+
+    // ==================== 店铺订单管理（板块3） ====================
+
+    /** 店铺订单列表（可按状态过滤） */
+    @Select("<script>select * from orders where store_id = #{storeId} " +
+            "<if test='status != null'> and status = #{status} </if> " +
+            "order by order_time desc limit 100</script>")
+    List<Orders> listByStoreId(Long storeId, Integer status);
+
+    /** 快递发货：待发货(2) → 已发货(3) */
+    @Update("update orders set status = 3, delivery_time = now() where id = #{id} and store_id = #{storeId} and status = 2")
+    int deliverOrder(Long storeId, Long id);
+
+    /** 自提核销：校验核销码 → 已完成(5) + 已核销 */
+    @Update("update orders set status = 5, verify_status = 1, delivery_time = now() where id = #{id} and store_id = #{storeId} and verify_code = #{verifyCode} and status in (2,3)")
+    int verifyOrder(Long storeId, Long id, String verifyCode);
 }

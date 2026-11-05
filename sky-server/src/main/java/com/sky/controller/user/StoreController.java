@@ -51,4 +51,27 @@ public class StoreController {
     public Result<Map<String, Object>> statistics() {
         return Result.success(storeService.statistics(BaseContext.getCurrentId()));
     }
+
+    /** 店铺订单列表（status 可空=全部；1待付款 2待发货 3已发货 5已完成 6已取消） */
+    @GetMapping("/orders")
+    @ApiOperation("店铺订单列表")
+    public Result<java.util.List<com.sky.entity.Orders>> listOrders(@RequestParam(required = false) Integer status) {
+        return Result.success(storeService.listOrders(status, BaseContext.getCurrentId()));
+    }
+
+    /** 快递发货（外部物流接口留调用点，暂不实现发货） */
+    @PutMapping("/order/deliver")
+    @ApiOperation("快递发货")
+    public Result<String> deliverOrder(@RequestParam Long orderId) {
+        storeService.deliverOrder(orderId, BaseContext.getCurrentId());
+        return Result.success("发货成功");
+    }
+
+    /** 自提核销 */
+    @PutMapping("/order/verify")
+    @ApiOperation("自提核销")
+    public Result<String> verifyOrder(@RequestParam Long orderId, @RequestParam String verifyCode) {
+        storeService.verifyOrder(orderId, verifyCode, BaseContext.getCurrentId());
+        return Result.success("核销成功");
+    }
 }

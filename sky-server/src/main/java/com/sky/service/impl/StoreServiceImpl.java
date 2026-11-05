@@ -82,4 +82,40 @@ public class StoreServiceImpl implements StoreService {
         result.put("income", (amount == null ? 0.0 : amount) - (refund == null ? 0.0 : refund)); // 总收入
         return result;
     }
+
+    @Override
+    public java.util.List<com.sky.entity.Orders> listOrders(Integer status, Long userId) {
+        Store store = storeMapper.getByOwner(userId);
+        if (store == null) {
+            throw new OrderBusinessException("未开通店铺");
+        }
+        return orderMapper.listByStoreId(store.getId(), status);
+    }
+
+    @Override
+    public void deliverOrder(Long orderId, Long userId) {
+        Store store = storeMapper.getByOwner(userId);
+        if (store == null) {
+            throw new OrderBusinessException("未开通店铺");
+        }
+        int rows = orderMapper.deliverOrder(store.getId(), orderId);
+        if (rows == 0) {
+            throw new OrderBusinessException("订单状态不允许发货（需待发货状态）");
+        }
+        // TODO 外部物流服务调用点：调用物流平台发货接口（当前不实现）
+        log.info("快递发货成功 orderId:{} storeId:{}", orderId, store.getId());
+    }
+
+    @Override
+    public void verifyOrder(Long orderId, String verifyCode, Long userId) {
+        Store store = storeMapper.getByOwner(userId);
+        if (store == null) {
+            throw new OrderBusinessException("未开通店铺");
+        }
+        int rows = orderMapper.verifyOrder(store.getId(), orderId, verifyCode);
+        if (rows == 0) {
+            throw new OrderBusinessException("核销失败：订单不存在/状态不符/核销码错误");
+        }
+        log.info("自提核销成功 orderId:{} storeId:{}", orderId, store.getId());
+    }
 }

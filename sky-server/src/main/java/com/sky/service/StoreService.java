@@ -29,4 +29,13 @@ public interface StoreService {
      * 有效订单数=全部-取消；订单总金额=全部含取消；退款金额=已退款含取消；总收入
      */
     Map<String, Object> statistics(Long userId);
+
+    /** 店铺订单列表 */
+    java.util.List<com.sky.entity.Orders> listOrders(Integer status, Long userId);
+
+    /** 快递发货（留外部物流接口调用点） */
+    void deliverOrder(Long orderId, Long userId);
+
+    /** 自提核销 */
+    void verifyOrder(Long orderId, String verifyCode, Long userId);
 }

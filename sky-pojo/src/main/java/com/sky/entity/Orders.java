@@ -64,6 +64,9 @@ public class Orders implements Serializable {
     //下单用户id
     private Long userId;
 
+    //店铺ID（私域交易）
+    private Long storeId;
+
     //地址id
     private Long addressBookId;
 
@@ -135,6 +138,15 @@ public class Orders implements Serializable {
 
     //拼团商品ID
     private String goodsId;
+
+    //订单类型 0快递 1自提/到店
+    private Integer orderType;
+
+    //自提核销码
+    private String verifyCode;
+
+    //核销状态 0未核销 1已核销
+    private Integer verifyStatus;
 
     //拼团优惠金额
     private BigDecimal deductionAmount;

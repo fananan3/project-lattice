@@ -43,6 +43,27 @@ public class StoreProduct implements Serializable {
     /** 1上架 0下架 */
     private Integer status;
 
+    /** 0普通 1拼团 */
+    private Integer marketType;
+
+    /** 拼团优惠方式 1折扣 2直降 */
+    private Integer marketMode;
+
+    /** 拼团优惠值（折扣如0.8 / 直降金额） */
+    private java.math.BigDecimal marketValue;
+
+    /** 拼团优惠价（直降场景最终价） */
+    private java.math.BigDecimal marketPrice;
+
+    /** 拼团成团人数 */
+    private Integer marketTarget;
+
+    /** 满减：满多少元 */
+    private java.math.BigDecimal fullAmount;
+
+    /** 满减：减多少元 */
+    private java.math.BigDecimal reductionAmount;
+
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;

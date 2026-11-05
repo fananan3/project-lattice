@@ -85,4 +85,18 @@ public class CommunityController {
     public Result<List<StoreProduct>> search(@RequestParam String keyword) {
         return Result.success(communityService.searchProduct(keyword, BaseContext.getCurrentId()));
     }
+
+    /** 我的店铺商品列表 */
+    @GetMapping("/product/owner-list")
+    @ApiOperation("我的店铺商品")
+    public Result<List<StoreProduct>> ownerList() {
+        return Result.success(communityService.ownerProducts(BaseContext.getCurrentId()));
+    }
+
+    /** 修改商品（信息/上下架；仅团长） */
+    @PutMapping("/product")
+    @ApiOperation("修改商品")
+    public Result<StoreProduct> updateProduct(@RequestBody StoreProductPublishDTO dto) {
+        return Result.success(communityService.updateProduct(dto, BaseContext.getCurrentId()));
+    }
 }

@@ -109,7 +109,7 @@ public class CommunityServiceImpl implements CommunityService {
             throw new OrderBusinessException("只有该社群团长才能发布商品");
         }
         StoreProduct product = StoreProduct.builder()
-                .storeId(0L) // 阶段一：店铺暂未拆开，直接挂社群
+                .storeId(0L) // 阶段二：店铺维度由 StoreService 管理，商品仍挂社群
                 .communityId(dto.getCommunityId())
                 .name(dto.getName())
                 .image(dto.getImage())
@@ -117,6 +117,14 @@ public class CommunityServiceImpl implements CommunityService {
                 .stock(dto.getStock() == null ? 0 : dto.getStock())
                 .description(dto.getDescription())
                 .status(1)
+                // 拼团/满减玩法
+                .marketType(dto.getMarketType() == null ? 0 : dto.getMarketType())
+                .marketMode(dto.getMarketMode())
+                .marketValue(dto.getMarketValue())
+                .marketPrice(dto.getMarketPrice())
+                .marketTarget(dto.getMarketTarget())
+                .fullAmount(dto.getFullAmount())
+                .reductionAmount(dto.getReductionAmount())
                 .build();
         storeProductMapper.insert(product);
         log.info("团长发布商品 productId:{} communityId:{} userId:{}", product.getId(), dto.getCommunityId(), userId);
@@ -140,6 +148,51 @@ public class CommunityServiceImpl implements CommunityService {
         }
         List<Long> communityIds = myCommunities.stream().map(Community::getId).collect(Collectors.toList());
         return storeProductMapper.search(keyword, communityIds);
+    }
+
+    @Override
+    public List<StoreProduct> ownerProducts(Long userId) {
+        // 我的店铺商品 = 我（团长）创建的社群里的商品
+        List<Community> myCommunities = communityMapper.listByUserId(userId);
+        if (myCommunities == null || myCommunities.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+        Long ownerCommunityId = myCommunities.stream()
+                .filter(c -> c.getRole() != null && c.getRole() == 1)
+                .map(Community::getId)
+                .findFirst().orElse(null);
+        if (ownerCommunityId == null) {
+            return java.util.Collections.emptyList();
+        }
+        return storeProductMapper.listByCommunityId(ownerCommunityId);
+    }
+
+    @Override
+    public StoreProduct updateProduct(StoreProductPublishDTO dto, Long userId) {
+        // 仅团长可修改（校验商品所属社群）
+        StoreProduct product = storeProductMapper.getById(dto.getId() == null ? -1L : dto.getId());
+        if (product == null) {
+            throw new OrderBusinessException("商品不存在");
+        }
+        CommunityMember member = communityMemberMapper.getByCommunityAndUser(product.getCommunityId(), userId);
+        if (member == null || member.getRole() == null || member.getRole() != 1) {
+            throw new OrderBusinessException("只有该社群团长才能修改商品");
+        }
+        product.setName(dto.getName());
+        product.setImage(dto.getImage());
+        product.setPrice(dto.getPrice());
+        product.setStock(dto.getStock() == null ? 0 : dto.getStock());
+        product.setDescription(dto.getDescription());
+        product.setStatus(dto.getStatus() == null ? 1 : dto.getStatus());
+        product.setMarketType(dto.getMarketType() == null ? 0 : dto.getMarketType());
+        product.setMarketMode(dto.getMarketMode());
+        product.setMarketValue(dto.getMarketValue());
+        product.setMarketPrice(dto.getMarketPrice());
+        product.setMarketTarget(dto.getMarketTarget());
+        product.setFullAmount(dto.getFullAmount());
+        product.setReductionAmount(dto.getReductionAmount());
+        storeProductMapper.update(product);
+        return product;
     }
 
     private String generateInviteCode() {

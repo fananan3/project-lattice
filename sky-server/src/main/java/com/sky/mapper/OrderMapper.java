@@ -132,4 +132,22 @@ public interface OrderMapper {
      * 仅对已支付订单生效，避免把未支付单误标记
      */
     void changeOrderMarketSettlement(List<String> orderNumbers);
+
+    // ==================== 店铺订单统计（阶段二） ====================
+
+    /** 店铺订单总数（含取消） */
+    @Select("select count(id) from orders where store_id = #{storeId}")
+    Integer countByStoreId(Long storeId);
+
+    /** 店铺已取消订单数 */
+    @Select("select count(id) from orders where store_id = #{storeId} and status = 6")
+    Integer countCancelledByStoreId(Long storeId);
+
+    /** 店铺订单总金额（含取消） */
+    @Select("select ifnull(sum(amount),0) from orders where store_id = #{storeId}")
+    Double sumAmountByStoreId(Long storeId);
+
+    /** 店铺已退款金额（pay_status=2，含已取消） */
+    @Select("select ifnull(sum(amount),0) from orders where store_id = #{storeId} and pay_status = 2")
+    Double sumRefundByStoreId(Long storeId);
 }

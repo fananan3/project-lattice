@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -29,6 +30,15 @@ public interface StoreProductMapper {
 
     @Select("select * from store_product where id = #{id}")
     StoreProduct getById(Long id);
+
+    /**
+     * 修改商品（信息/上下架）
+     */
+    @Update("update store_product set name=#{name}, image=#{image}, price=#{price}, stock=#{stock}, " +
+            "description=#{description}, status=#{status}, market_type=#{marketType}, market_mode=#{marketMode}, " +
+            "market_value=#{marketValue}, market_price=#{marketPrice}, market_target=#{marketTarget}, " +
+            "full_amount=#{fullAmount}, reduction_amount=#{reductionAmount} where id=#{id}")
+    void update(StoreProduct product);
 
     /**
      * 商品搜索：名称模糊匹配 + 限定我加入的社群

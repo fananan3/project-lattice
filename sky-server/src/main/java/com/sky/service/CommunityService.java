@@ -52,4 +52,14 @@ public interface CommunityService {
      * 商品搜索（限定我加入的社群）
      */
     List<StoreProduct> searchProduct(String keyword, Long userId);
+
+    /**
+     * 我的店铺商品（我团长社群的商品）
+     */
+    List<StoreProduct> ownerProducts(Long userId);
+
+    /**
+     * 修改商品（信息/上下架；仅团长）
+     */
+    StoreProduct updateProduct(StoreProductPublishDTO dto, Long userId);
 }

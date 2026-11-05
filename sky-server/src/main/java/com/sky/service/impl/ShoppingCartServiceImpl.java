@@ -4,8 +4,10 @@ import com.sky.context.BaseContext;
 import com.sky.dto.ShoppingCartDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.ShoppingCart;
+import com.sky.exception.OrderBusinessException;
 import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetmealMapper;
+import com.sky.mapper.StoreProductMapper;
 import com.sky.mapper.ShoppingCartMapper;
 import com.sky.service.ShoppingCratService;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,9 @@ public class ShoppingCartServiceImpl implements ShoppingCratService {
 
     @Autowired
     private SetmealMapper setmealMapper;
+
+    @Autowired
+    private StoreProductMapper storeProductMapper;
 
     /***
      * 添加购物车
@@ -53,9 +58,21 @@ public class ShoppingCartServiceImpl implements ShoppingCratService {
             if(dishId != null){
             //添加的是菜品
                 Dish dish = dishMapper.getById(dishId);
-                shoppingCart.setImage(dish.getImage());
-                shoppingCart.setName(dish.getName());
-                shoppingCart.setAmount(dish.getPrice());
+                if (dish != null) {
+                    shoppingCart.setImage(dish.getImage());
+                    shoppingCart.setName(dish.getName());
+                    shoppingCart.setAmount(dish.getPrice());
+                } else {
+                    // 私域商品（store_product，前端传 product.id 到 dishId）
+                    com.sky.entity.StoreProduct product = storeProductMapper.getById(dishId);
+                    if (product == null || product.getStatus() == null || product.getStatus() != 1) {
+                        throw new OrderBusinessException("商品不存在或已下架");
+                    }
+                    shoppingCart.setImage(product.getImage());
+                    shoppingCart.setName(product.getName());
+                    shoppingCart.setAmount(product.getPrice());
+                    shoppingCart.setStoreId(product.getStoreId());
+                }
             }else {
             //添加的是套餐
                 Long setmealId = shoppingCartDTO.getSetmealId();

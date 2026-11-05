@@ -36,7 +36,7 @@ public interface StoreProductMapper {
      */
     @Update("update store_product set name=#{name}, image=#{image}, price=#{price}, stock=#{stock}, " +
             "description=#{description}, status=#{status}, market_type=#{marketType}, market_mode=#{marketMode}, " +
-            "market_value=#{marketValue}, market_price=#{marketPrice}, market_target=#{marketTarget}, " +
+            "market_value=#{marketValue}, market_price=#{marketPrice}, market_target=#{marketTarget}, market_activity_id=#{marketActivityId}, " +
             "full_amount=#{fullAmount}, reduction_amount=#{reductionAmount} where id=#{id}")
     void update(StoreProduct product);
 

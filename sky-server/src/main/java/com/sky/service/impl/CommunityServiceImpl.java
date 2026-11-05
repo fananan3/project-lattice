@@ -11,6 +11,8 @@ import com.sky.mapper.CommunityMapper;
 import com.sky.mapper.CommunityMemberMapper;
 import com.sky.mapper.StoreCategoryMapper;
 import com.sky.mapper.StoreProductMapper;
+import com.sky.market.IGroupBuyActivityFeignClient;
+import com.sky.market.MarketResponse;
 import com.sky.service.CommunityService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.RandomStringUtils;
@@ -39,6 +41,14 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Autowired
     private StoreCategoryMapper storeCategoryMapper;
+
+    @Autowired
+    private IGroupBuyActivityFeignClient groupBuyActivityFeignClient;
+
+    @org.springframework.beans.factory.annotation.Value("${sky.group-buy-market.source}")
+    private String marketSource;
+    @org.springframework.beans.factory.annotation.Value("${sky.group-buy-market.channel}")
+    private String marketChannel;
 
     @Override
     @Transactional
@@ -132,6 +142,14 @@ public class CommunityServiceImpl implements CommunityService {
                 .reductionAmount(dto.getReductionAmount())
                 .build();
         storeProductMapper.insert(product);
+        // 拼团商品：注册到 gbm 引擎（goodsId=P{productId}），保存活动ID用于锁单
+        if (product.getMarketType() != null && product.getMarketType() == 1) {
+            Long activityId = registerMarketGoods(product, dto);
+            if (activityId != null) {
+                product.setMarketActivityId(activityId);
+                storeProductMapper.update(product);
+            }
+        }
         log.info("团长发布商品 productId:{} communityId:{} userId:{}", product.getId(), dto.getCommunityId(), userId);
         return product;
     }
@@ -198,6 +216,35 @@ public class CommunityServiceImpl implements CommunityService {
         product.setReductionAmount(dto.getReductionAmount());
         storeProductMapper.update(product);
         return product;
+    }
+
+    /**
+     * 注册拼团商品到 gbm 引擎（创建 sku + 折扣 + 活动 + 绑定）
+     */
+    private Long registerMarketGoods(StoreProduct product, StoreProductPublishDTO dto) {
+        try {
+            java.util.Map<String, Object> req = new java.util.HashMap<>();
+            req.put("source", marketSource);
+            req.put("channel", marketChannel);
+            req.put("goodsId", "P" + product.getId());
+            req.put("goodsName", product.getName());
+            req.put("originalPrice", product.getPrice());
+            req.put("discountType", dto.getMarketMode());
+            req.put("discountValue", dto.getMarketMode() != null && dto.getMarketMode() == 1
+                    ? dto.getMarketValue() : dto.getMarketPrice());
+            req.put("target", dto.getMarketTarget() == null ? 2 : dto.getMarketTarget());
+            req.put("validTime", 15);
+            req.put("storeId", product.getStoreId());
+            MarketResponse<Long> resp = groupBuyActivityFeignClient.registerMarketGoods(req);
+            if (resp != null && "0000".equals(resp.getCode()) && resp.getData() != null) {
+                log.info("拼团商品注册成功 productId:{} activityId:{}", product.getId(), resp.getData());
+                return resp.getData();
+            }
+            log.warn("拼团商品注册未成功 productId:{} resp:{}", product.getId(), resp);
+        } catch (Exception e) {
+            log.error("拼团商品注册失败（保留商品为普通） productId:{}", product.getId(), e);
+        }
+        return null;
     }
 
     private String generateInviteCode() {

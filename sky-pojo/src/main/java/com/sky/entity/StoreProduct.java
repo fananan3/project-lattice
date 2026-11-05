@@ -58,6 +58,9 @@ public class StoreProduct implements Serializable {
     /** 拼团成团人数 */
     private Integer marketTarget;
 
+    /** 拼团活动ID（注册 gbm 返回，锁单用） */
+    private Long marketActivityId;
+
     /** 满减：满多少元 */
     private java.math.BigDecimal fullAmount;
 

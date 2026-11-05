@@ -5,6 +5,7 @@ import com.sky.dto.CommunityCreateDTO;
 import com.sky.dto.StoreProductPublishDTO;
 import com.sky.entity.Community;
 import com.sky.entity.CommunityMember;
+import com.sky.entity.StoreCategory;
 import com.sky.entity.StoreProduct;
 import com.sky.result.Result;
 import com.sky.service.CommunityService;
@@ -98,5 +99,12 @@ public class CommunityController {
     @ApiOperation("修改商品")
     public Result<StoreProduct> updateProduct(@RequestBody StoreProductPublishDTO dto) {
         return Result.success(communityService.updateProduct(dto, BaseContext.getCurrentId()));
+    }
+
+    /** 社群商品分类 */
+    @GetMapping("/categories")
+    @ApiOperation("社群商品分类")
+    public Result<List<StoreCategory>> categories(@RequestParam Long communityId) {
+        return Result.success(communityService.categories(communityId));
     }
 }

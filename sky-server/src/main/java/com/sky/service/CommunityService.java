@@ -4,6 +4,7 @@ import com.sky.dto.CommunityCreateDTO;
 import com.sky.dto.StoreProductPublishDTO;
 import com.sky.entity.Community;
 import com.sky.entity.CommunityMember;
+import com.sky.entity.StoreCategory;
 import com.sky.entity.StoreProduct;
 
 import java.util.List;
@@ -62,4 +63,9 @@ public interface CommunityService {
      * 修改商品（信息/上下架；仅团长）
      */
     StoreProduct updateProduct(StoreProductPublishDTO dto, Long userId);
+
+    /**
+     * 社群商品分类
+     */
+    List<StoreCategory> categories(Long communityId);
 }

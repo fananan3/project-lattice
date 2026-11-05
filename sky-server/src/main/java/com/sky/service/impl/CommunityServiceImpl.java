@@ -4,10 +4,12 @@ import com.sky.dto.CommunityCreateDTO;
 import com.sky.dto.StoreProductPublishDTO;
 import com.sky.entity.Community;
 import com.sky.entity.CommunityMember;
+import com.sky.entity.StoreCategory;
 import com.sky.entity.StoreProduct;
 import com.sky.exception.OrderBusinessException;
 import com.sky.mapper.CommunityMapper;
 import com.sky.mapper.CommunityMemberMapper;
+import com.sky.mapper.StoreCategoryMapper;
 import com.sky.mapper.StoreProductMapper;
 import com.sky.service.CommunityService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +36,9 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Autowired
     private StoreProductMapper storeProductMapper;
+
+    @Autowired
+    private StoreCategoryMapper storeCategoryMapper;
 
     @Override
     @Transactional
@@ -197,5 +202,10 @@ public class CommunityServiceImpl implements CommunityService {
 
     private String generateInviteCode() {
         return RandomStringUtils.randomAlphanumeric(8).toUpperCase();
+    }
+
+    @Override
+    public List<StoreCategory> categories(Long communityId) {
+        return storeCategoryMapper.listByCommunityId(communityId);
     }
 }
